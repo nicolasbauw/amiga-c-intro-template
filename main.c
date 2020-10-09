@@ -74,13 +74,13 @@ void startup() {
 	GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 0);
 	oldcop = GfxBase->copinit;
 
-    SystemDMA = custom.dmaconr|0x8000;    // Saving initial DMA with the SET/CLR flag set
+    SystemDMA = custom.dmaconr|0x8000;      // Saving initial DMA with the SET/CLR flag set
     #ifdef VBLINT
-    SystemInts = custom.intenar|0x8000;
-    SystemIrq = GetInterruptHandler();                                                    // Store interrupt register
+    SystemInts = custom.intenar|0x8000;     // Saving initial interrupts
+    SystemIrq = GetInterruptHandler();      // Store interrupt register
     #endif
 
-    WaitTOF();                          // Waiting for both copperlists to finish
+    WaitTOF();                              // Waiting for both copperlists to finish
     WaitTOF();
 
     #ifdef DEBUG
