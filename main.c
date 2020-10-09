@@ -87,8 +87,8 @@ void startup() {
     printf("copperlist address : %8x\n", (ULONG)clist);
     #endif
 
-    custom.dmaconr = 0x7FFF;                                                            // Clear all DMA channels
-    custom.intreqr = 0x7fff;                                                            // Clear all interrupts
+    custom.dmacon = 0x7FFF;                                                            // Clear all DMA channels
+    custom.intreq = 0x7FFF;                                                            // Clear all interrupts
 	custom.bplcon0 = 0x1000;                                                            // 1 bitplan in low resolution
 	custom.bplcon1 = 0x0000;
 	custom.ddfstrt = 0X0038;
