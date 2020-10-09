@@ -4,13 +4,38 @@
 #include <hardware/custom.h>
 #include <hardware/dmabits.h>
 
-//#define DEBUG
-#ifdef DEBUG
+#define MODPLAY
+#define DEBUG
+#define VBLINT
+
+#ifdef DEBUG            // Makefile :  For debug : aos68k. If no debug : aos68km
 #include <stdio.h>
+ULONG counter = 0;
 #endif
 
+// Protracker module replay
+#ifdef MODPLAY
 int mod_play();
 int mod_stop();
+#endif
+
+// Vertical blank interrupt
+#ifdef VBLINT
+#include <hardware/intbits.h>
+void SetInterruptHandler(APTR interrupt) {
+	*(volatile APTR*) 0x6c = interrupt;
+}
+
+APTR GetInterruptHandler() {
+	return *((volatile APTR*) 0x6c);
+}
+
+void __amigainterrupt interruptHandler();
+
+UWORD SystemInts;           // backup of initial interrupts
+APTR SystemIrq;             // backup of interrupts register
+#endif
+
 
 volatile UBYTE *ciaa = (volatile UBYTE *) 0xbfe001;
 UBYTE *bitplan1;            // pointer to bitplan data
@@ -49,7 +74,12 @@ void startup() {
 	GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 0);
 	oldcop = GfxBase->copinit;
 
-    SystemDMA=custom.dmaconr|0x8000;    // Saving initial DMA with the SET/CLR flag set
+    SystemDMA = custom.dmaconr|0x8000;    // Saving initial DMA with the SET/CLR flag set
+    #ifdef VBLINT
+    SystemInts = custom.intenar|0x8000;
+    SystemIrq = GetInterruptHandler();                                                    // Store interrupt register
+    #endif
+
     WaitTOF();                          // Waiting for both copperlists to finish
     WaitTOF();
 
@@ -57,7 +87,8 @@ void startup() {
     printf("copperlist address : %8x\n", (ULONG)clist);
     #endif
 
-    custom.dmacon = 0x7FFF;                                                             // Clear all DMA channels
+    custom.dmaconr = 0x7FFF;                                                            // Clear all DMA channels
+    custom.intreqr = 0x7fff;                                                            // Clear all interrupts
 	custom.bplcon0 = 0x1000;                                                            // 1 bitplan in low resolution
 	custom.bplcon1 = 0x0000;
 	custom.ddfstrt = 0X0038;
@@ -67,6 +98,10 @@ void startup() {
 	custom.bpl1mod = 0x0000;
 	custom.cop1lc = (ULONG)clist;                                                       // copperlist address
 	custom.dmacon = DMAF_SETCLR | DMAF_MASTER | DMAF_COPPER | DMAF_RASTER;              // playfield and copper DMA enabled
+    #ifdef VBLINT
+    //SetInterruptHandler((APTR)interruptHandler);                                        // Setting new interrupt handler
+    custom.intena = INTF_SETCLR | INTF_INTEN | INTF_VERTB;
+    #endif
     custom.copjmp1 = 0x0000;                                                            // copper start
 }
 
@@ -75,15 +110,37 @@ void restore() {
     custom.dmacon = SystemDMA;                  // Restores initial DMA
     custom.cop1lc = (ULONG)oldcop;              // Restores initial copperlist
     CloseLibrary((struct Library *)GfxBase);
+    #ifdef VBLINT
+    SetInterruptHandler(SystemIrq);             // Restores interrupts
+    custom.intena = SystemInts;
+    #endif
+    #ifdef DEBUG
+    printf("%d\n", counter);
+    #endif
 }
+
+#ifdef VBLINT
+void __amigainterrupt interruptHandler() {
+	custom.intreq=(UWORD)0x4020; custom.intreq=(UWORD)0x4020; //reset vbl req. twice for a4000 bug.
+    #ifdef DEBUG
+    counter ++;
+    ULONG i = 0;
+    while (i<0x000FFFFF) {i++;};
+    #endif
+}
+#endif
 
 int main() {
     // Allocating memory (chipram) for bitplans
     if ((bitplan1 = AllocMem(0x2800, MEMF_CHIP|MEMF_CLEAR)) == NULL) return 1;
     startup();
+    #ifdef MODPLAY
     mod_play();
+    #endif
     waitLMB();
+    #ifdef MODPLAY
     mod_stop();
+    #endif
     restore();
     return 0;
 }
