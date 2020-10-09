@@ -99,7 +99,7 @@ void startup() {
 	custom.cop1lc = (ULONG)clist;                                                       // copperlist address
 	custom.dmacon = DMAF_SETCLR | DMAF_MASTER | DMAF_COPPER | DMAF_RASTER;              // playfield and copper DMA enabled
     #ifdef VBLINT
-    //SetInterruptHandler((APTR)interruptHandler);                                        // Setting new interrupt handler
+    SetInterruptHandler((APTR)interruptHandler);                                        // Setting new interrupt handler
     custom.intena = INTF_SETCLR | INTF_INTEN | INTF_VERTB;
     #endif
     custom.copjmp1 = 0x0000;                                                            // copper start
@@ -121,12 +121,12 @@ void restore() {
 
 #ifdef VBLINT
 void __amigainterrupt interruptHandler() {
-	custom.intreq=(UWORD)0x4020; custom.intreq=(UWORD)0x4020; //reset vbl req. twice for a4000 bug.
     #ifdef DEBUG
     counter ++;
     ULONG i = 0;
     while (i<0x000FFFFF) {i++;};
     #endif
+    custom.intreq=0x4020; custom.intreq=0x4020; //reset vbl req. twice for a4000 bug.
 }
 #endif
 
