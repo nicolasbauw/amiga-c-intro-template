@@ -5,7 +5,7 @@
 #include <hardware/dmabits.h>
 
 #define MODPLAY
-#define DEBUG
+//#define DEBUG
 #define VBLINT
 
 #ifdef DEBUG            // Makefile :  For debug : aos68k. If no debug : aos68km
@@ -30,7 +30,7 @@ APTR GetInterruptHandler() {
 	return *((volatile APTR*) 0x6c);
 }
 
-void __amigainterrupt interruptHandler();
+void __interrupt interruptHandler();
 
 UWORD SystemInts;           // backup of initial interrupts
 APTR SystemIrq;             // backup of interrupts register
@@ -120,7 +120,7 @@ void restore() {
 }
 
 #ifdef VBLINT
-void __amigainterrupt interruptHandler() {
+void __interrupt interruptHandler() {
     #ifdef DEBUG
     counter ++;
     ULONG i = 0;
