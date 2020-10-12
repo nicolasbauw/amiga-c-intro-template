@@ -74,7 +74,9 @@ void waitLMB() {
 
 UWORD __chip clist[];
 
-void startup() {
+int startup() {
+    // Allocating memory (chipram) for bitplans
+    if ((bitplan1 = AllocMem(0x2800, MEMF_CHIP|MEMF_CLEAR)) == NULL) return 1;
     // Updating copperlist with bitplan address
     ULONG bpl1addr;
     bpl1addr = (ULONG)bitplan1;
@@ -110,7 +112,10 @@ void startup() {
         printf("System friendly VBlank interrupts.\n");
         #endif
     }
-    //else printf("Can't allocate memory for interrupt node\n");
+    else {
+        CloseLibrary((struct Library *)GfxBase);
+        return 1;
+    }
     #endif
 
     WaitTOF();                                                                          // Waiting for both copperlists to finish
@@ -136,6 +141,7 @@ void startup() {
     custom.intena = INTF_SETCLR | INTF_INTEN | INTF_VERTB;
     #endif
     custom.copjmp1 = 0x0000;                                                            // copper start
+    return 0;
 }
 
 void restore() {
@@ -187,9 +193,7 @@ UWORD __chip clist[] = {
 };
 
 int main() {
-    // Allocating memory (chipram) for bitplans
-    if ((bitplan1 = AllocMem(0x2800, MEMF_CHIP|MEMF_CLEAR)) == NULL) return 1;
-    startup();
+    if (startup()) return 20;
     #ifdef MODPLAY
     mod_play();
     #endif
