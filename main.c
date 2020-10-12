@@ -21,7 +21,7 @@
  * *****************************************/
  
 #define MODPLAY
-#define DEBUG
+//#define DEBUG
 //#define VBL_HW_INT
 #define VBL_SYS_INT
 
