@@ -72,6 +72,8 @@ void waitLMB() {
     while ((*ciaa & 64) != 0);
 }
 
+UWORD __chip clist[];
+
 void startup() {
     // Updating copperlist with bitplan address
     ULONG bpl1addr;
