@@ -167,7 +167,7 @@ __interrupt void interruptHandler() {
     #ifdef DEBUG
     counter++;
     #endif
-    custom.intreq=0x4020; custom.intreq=0x4020; //reset vbl req. twice for a4000 bug.
+    custom.intreq=INTF_VERTB; custom.intreq=INTF_VERTB; //reset vbl req. twice for a4000 bug.
 }
 #endif
 
