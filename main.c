@@ -134,9 +134,6 @@ void startup() {
     #ifdef VBL_HW_INT
     SetInterruptHandler((APTR)interruptHandler);                                        // Setting new interrupt handler
     custom.intena = INTF_SETCLR | INTF_INTEN | INTF_VERTB;
-    #ifdef DEBUG
-    printf("Hardware VBlank interrupts.\n");
-    #endif
     #endif
     custom.copjmp1 = 0x0000;                                                            // copper start
 }
@@ -160,7 +157,7 @@ void restore() {
 }
 
 #ifdef VBL_HW_INT
-void __interrupt interruptHandler() {
+__interrupt void interruptHandler() {
     #ifdef DEBUG
     counter++;
     #endif
