@@ -4,6 +4,22 @@
 #include <hardware/custom.h>
 #include <hardware/dmabits.h>
 
+/********************************************
+ * Here we can activate various features:   *
+ *                                          *
+ * MODPLAY for protracker modules replay    *
+ * via ptreplay.library                     *
+ *                                          *
+ * DEBUG for various debug outputs (mostly  *
+ * used during this template development)   *
+ *                                          *
+ * VBL_HW_INT for hardware VBL interrupts   *
+ * WARNING that will not work with MODPLAY  *
+ * 
+ * VBL_SYS_INT for system friendly VBL      *
+ * interrupts for use with MODPLAY          *
+ * *****************************************/
+ 
 #define MODPLAY
 #define DEBUG
 //#define VBL_HW_INT
@@ -52,15 +68,6 @@ extern struct Custom custom;
 extern struct GfxBase *GfxBase;
 struct copinit *oldcop;
 
-// Basic copperlist : just resets bitplan pointers at each frame
-UWORD __chip clist[] = {
-    0x00E0, 0x0000,
-    0x00E2, 0x0000,
-    0x0180, 0x0000,
-    0x0182, 0x0FFF,
-    0xFFFF, 0xFFFE
-};
-
 void waitLMB() {
     while ((*ciaa & 64) != 0);
 }
@@ -105,15 +112,15 @@ void startup() {
     //else printf("Can't allocate memory for interrupt node\n");
     #endif
 
-    WaitTOF();                              // Waiting for both copperlists to finish
+    WaitTOF();                                                                          // Waiting for both copperlists to finish
     WaitTOF();
 
     #ifdef DEBUG
     printf("copperlist address : %8x\n", (ULONG)clist);
     #endif
 
-    custom.dmacon = 0x7FFF;                                                            // Clear all DMA channels
-    custom.intreq = 0x7FFF;                                                            // Clear all interrupts
+    custom.dmacon = 0x7FFF;                                                             // Clear all DMA channels
+    custom.intreq = 0x7FFF;                                                             // Clear all interrupts
 	custom.bplcon0 = 0x1000;                                                            // 1 bitplan in low resolution
 	custom.bplcon1 = 0x0000;
 	custom.ddfstrt = 0X0038;
@@ -147,7 +154,7 @@ void restore() {
     FreeMem(vbint, sizeof(struct Interrupt));
     #endif
     #ifdef DEBUG
-    printf("%d\n", counter);
+    printf("%d VBL interrupts occured.\n", counter);
     #endif
 }
 
@@ -167,6 +174,19 @@ __amigainterrupt void interruptHandler() {
     #endif
 }
 #endif
+
+/*************************
+ * Here starts your code *
+ * **********************/
+
+// Basic copperlist : just resets bitplan pointers and color registers at each frame
+UWORD __chip clist[] = {
+    0x00E0, 0x0000,
+    0x00E2, 0x0000,
+    0x0180, 0x0000,
+    0x0182, 0x0FFF,
+    0xFFFF, 0xFFFE
+};
 
 int main() {
     // Allocating memory (chipram) for bitplans
