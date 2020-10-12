@@ -193,7 +193,7 @@ UWORD __chip clist[] = {
 };
 
 int main() {
-    if (startup()) return 20;
+    if (startup()) return 10;
     #ifdef MODPLAY
     mod_play();
     #endif
