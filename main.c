@@ -89,19 +89,20 @@ void startup() {
     #endif
 
     #ifdef VBL_SYS_INT
-                                                       /* Allocate memory for  */
-    if (vbint = AllocMem(sizeof(struct Interrupt),     /* interrupt node. */
-                         MEMF_PUBLIC|MEMF_CLEAR))
+    if (vbint = AllocMem(sizeof(struct Interrupt),     /* Allocate memory for  */
+                         MEMF_PUBLIC|MEMF_CLEAR))      /* interrupt node. */
     {
         vbint->is_Node.ln_Type = NT_INTERRUPT;         /* Initialize the node. */
         vbint->is_Node.ln_Pri = -60;
         vbint->is_Node.ln_Name = "VertB-Interrupt";
-        vbint->is_Data = (APTR)&counter;
+        //vbint->is_Data = (APTR)&counter;
         vbint->is_Code = interruptHandler;
         AddIntServer(INTB_VERTB, vbint); /* Kick this interrupt server to life. */
-        printf("VBlank server will increment a counter every frame.\n");
+        #ifdef DEBUG
+        printf("System friendly VBlank interrupts.\n");
+        #endif
     }
-    else printf("Can't allocate memory for interrupt node\n");
+    //else printf("Can't allocate memory for interrupt node\n");
     #endif
 
     WaitTOF();                              // Waiting for both copperlists to finish
@@ -125,6 +126,9 @@ void startup() {
     #ifdef VBL_HW_INT
     SetInterruptHandler((APTR)interruptHandler);                                        // Setting new interrupt handler
     custom.intena = INTF_SETCLR | INTF_INTEN | INTF_VERTB;
+    #ifdef DEBUG
+    printf("Hardware VBlank interrupts.\n");
+    #endif
     #endif
     custom.copjmp1 = 0x0000;                                                            // copper start
 }
