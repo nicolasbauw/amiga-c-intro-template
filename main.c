@@ -89,8 +89,8 @@ int startup() {
     #endif
 
     // Saving initial copperlist
-	GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 0);
-	oldcop = GfxBase->copinit;
+    GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 0);
+    oldcop = GfxBase->copinit;
 
     SystemDMA = custom.dmaconr|0x8000;      // Saving initial DMA with the SET/CLR flag set
 
