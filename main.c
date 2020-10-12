@@ -4,9 +4,10 @@
 #include <hardware/custom.h>
 #include <hardware/dmabits.h>
 
-//#define MODPLAY
+#define MODPLAY
 #define DEBUG
-#define VBLINT
+//#define VBL_HW_INT
+#define VBL_SYS_INT
 
 #ifdef DEBUG            // Makefile :  For debug : aos68k. If no debug : aos68km
 #include <stdio.h>
@@ -19,8 +20,8 @@ int mod_play();
 int mod_stop();
 #endif
 
-// Vertical blank interrupt
-#ifdef VBLINT
+// Vertical blank (hardware) interrupt
+#ifdef VBL_HW_INT
 #include <hardware/intbits.h>
 void SetInterruptHandler(APTR interrupt) {
 	*(volatile APTR*) 0x6c = interrupt;
@@ -36,6 +37,12 @@ UWORD SystemInts;           // backup of initial interrupts
 APTR SystemIrq;             // backup of interrupts register
 #endif
 
+// Vertical blank (system) interrupt
+#ifdef VBL_SYS_INT
+#include <hardware/intbits.h>
+struct Interrupt *vbint;
+void __amigainterrupt interruptHandler();
+#endif
 
 volatile UBYTE *ciaa = (volatile UBYTE *) 0xbfe001;
 UBYTE *bitplan1;            // pointer to bitplan data
@@ -75,9 +82,26 @@ void startup() {
 	oldcop = GfxBase->copinit;
 
     SystemDMA = custom.dmaconr|0x8000;      // Saving initial DMA with the SET/CLR flag set
-    #ifdef VBLINT
+
+    #ifdef VBL_HW_INT
     SystemInts = custom.intenar|0x8000;     // Saving initial interrupts
     SystemIrq = GetInterruptHandler();      // Store interrupt register
+    #endif
+
+    #ifdef VBL_SYS_INT
+                                                       /* Allocate memory for  */
+    if (vbint = AllocMem(sizeof(struct Interrupt),     /* interrupt node. */
+                         MEMF_PUBLIC|MEMF_CLEAR))
+    {
+        vbint->is_Node.ln_Type = NT_INTERRUPT;         /* Initialize the node. */
+        vbint->is_Node.ln_Pri = -60;
+        vbint->is_Node.ln_Name = "VertB-Interrupt";
+        vbint->is_Data = (APTR)&counter;
+        vbint->is_Code = interruptHandler;
+        AddIntServer(INTB_VERTB, vbint); /* Kick this interrupt server to life. */
+        printf("VBlank server will increment a counter every frame.\n");
+    }
+    else printf("Can't allocate memory for interrupt node\n");
     #endif
 
     WaitTOF();                              // Waiting for both copperlists to finish
@@ -98,33 +122,45 @@ void startup() {
 	custom.bpl1mod = 0x0000;
 	custom.cop1lc = (ULONG)clist;                                                       // copperlist address
 	custom.dmacon = DMAF_SETCLR | DMAF_MASTER | DMAF_COPPER | DMAF_RASTER;              // playfield and copper DMA enabled
-    #ifdef VBLINT
+    #ifdef VBL_HW_INT
     SetInterruptHandler((APTR)interruptHandler);                                        // Setting new interrupt handler
     custom.intena = INTF_SETCLR | INTF_INTEN | INTF_VERTB;
     #endif
     custom.copjmp1 = 0x0000;                                                            // copper start
 }
 
-void restore() { 
+void restore() {
 	if (bitplan1) FreeMem(bitplan1, 0x2800);    // Frees reserved memory
     custom.dmacon = SystemDMA;                  // Restores initial DMA
     custom.cop1lc = (ULONG)oldcop;              // Restores initial copperlist
     CloseLibrary((struct Library *)GfxBase);
-    #ifdef VBLINT
+    #ifdef VBL_HW_INT
     SetInterruptHandler(SystemIrq);             // Restores interrupts
     custom.intena = SystemInts;
+    #endif
+    #ifdef VBL_SYS_INT
+    RemIntServer(INTB_VERTB, vbint);
+    FreeMem(vbint, sizeof(struct Interrupt));
     #endif
     #ifdef DEBUG
     printf("%d\n", counter);
     #endif
 }
 
-#ifdef VBLINT
+#ifdef VBL_HW_INT
 void __interrupt interruptHandler() {
     #ifdef DEBUG
-    counter ++;
+    counter++;
     #endif
     custom.intreq=0x4020; custom.intreq=0x4020; //reset vbl req. twice for a4000 bug.
+}
+#endif
+
+#ifdef VBL_SYS_INT
+__amigainterrupt void interruptHandler() {
+    #ifdef DEBUG
+    counter++;
+    #endif
 }
 #endif
 
