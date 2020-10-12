@@ -4,8 +4,8 @@
 #include <hardware/custom.h>
 #include <hardware/dmabits.h>
 
-#define MODPLAY
-//#define DEBUG
+//#define MODPLAY
+#define DEBUG
 #define VBLINT
 
 #ifdef DEBUG            // Makefile :  For debug : aos68k. If no debug : aos68km
@@ -123,8 +123,6 @@ void restore() {
 void __interrupt interruptHandler() {
     #ifdef DEBUG
     counter ++;
-    ULONG i = 0;
-    while (i<0x000FFFFF) {i++;};
     #endif
     custom.intreq=0x4020; custom.intreq=0x4020; //reset vbl req. twice for a4000 bug.
 }
