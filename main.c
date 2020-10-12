@@ -17,7 +17,7 @@
  * WARNING that will not work with MODPLAY  *
  * 
  * VBL_SYS_INT for system friendly VBL      *
- * interrupts for use with MODPLAY          *
+ * interrupts compatible with MODPLAY       *
  * *****************************************/
  
 #define MODPLAY
@@ -25,7 +25,7 @@
 //#define VBL_HW_INT
 #define VBL_SYS_INT
 
-#ifdef DEBUG            // Makefile :  For debug : aos68k. If no debug : aos68km
+#ifdef DEBUG            // Makefile :  if DEBUG : aos68k. If no debug : aos68km (lighter compiled executable)
 #include <stdio.h>
 ULONG counter = 0;
 #endif
@@ -102,9 +102,8 @@ void startup() {
         vbint->is_Node.ln_Type = NT_INTERRUPT;         /* Initialize the node. */
         vbint->is_Node.ln_Pri = -60;
         vbint->is_Node.ln_Name = "VertB-Interrupt";
-        //vbint->is_Data = (APTR)&counter;
         vbint->is_Code = interruptHandler;
-        AddIntServer(INTB_VERTB, vbint); /* Kick this interrupt server to life. */
+        AddIntServer(INTB_VERTB, vbint); /* Launching interrupt server. */
         #ifdef DEBUG
         printf("System friendly VBlank interrupts.\n");
         #endif
