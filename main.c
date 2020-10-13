@@ -5,7 +5,7 @@
 #include <hardware/dmabits.h>
 
 /********************************************
- * Here we can activate various features:   *
+ * Here you can activate various features:  *
  *                                          *
  * MODPLAY for protracker modules replay    *
  * via ptreplay.library                     *
@@ -184,6 +184,10 @@ void mod_stop() {
 	CloseLibrary(PTReplayBase);
 }
 #endif
+
+/****************************************************************
+* Here you can place code to run during vertical blank interval *
+****************************************************************/
 
 #ifdef VBL_HW_INT
 __interrupt void interruptHandler() {
