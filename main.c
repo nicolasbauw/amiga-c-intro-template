@@ -55,19 +55,20 @@ struct Interrupt *vbint;
 void __amigainterrupt interruptHandler();
 #endif
 
+// Variables declarations
 volatile UBYTE *ciaa = (volatile UBYTE *) 0xbfe001;
 UBYTE *bitplan1;            // pointer to bitplan data
 UWORD SystemDMA;            // backup of initial DMA
+UWORD __chip clist[];       // Copperlist
 
 extern struct Custom custom;
 extern struct GfxBase *GfxBase;
-struct copinit *oldcop;
+struct copinit *oldcop;     // Initial copperlist
 
+// Functions declarations
 void waitLMB() {
     while ((*ciaa & 64) != 0);
 }
-
-UWORD __chip clist[];
 
 int startup() {
     // Allocating memory (chipram) for bitplans
@@ -113,12 +114,12 @@ int startup() {
     }
     #endif
 
-    WaitTOF();                                                                          // Waiting for both copperlists to finish
-    WaitTOF();
-
     #ifdef DEBUG
     printf("copperlist address : %8x\n", (ULONG)clist);
     #endif
+
+    WaitTOF();                                                                          // Waiting for both copperlists to finish
+    WaitTOF();
 
     custom.dmacon = 0x7FFF;                                                             // Clear all DMA channels
     custom.intreq = 0x7FFF;                                                             // Clear all interrupts
