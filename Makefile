@@ -3,7 +3,7 @@ CFLAGS = -c99 +aos68km -I$(NDK_INC)
 LDFLAGS = -lamiga -lauto
 
 all:
-	$(CC) $(CFLAGS) -o intro main.c modplay.c $(LDFLAGS)
+	$(CC) $(CFLAGS) -o intro main.c $(LDFLAGS)
 
 clean:
 	rm intro

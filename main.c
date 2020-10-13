@@ -14,7 +14,7 @@
  * used during this template development)   *
  *                                          *
  * VBL_HW_INT for hardware VBL interrupts   *
- * WARNING that will not work with MODPLAY  *
+ * Warning that will not work with MODPLAY  *
  * 
  * VBL_SYS_INT for system friendly VBL      *
  * interrupts compatible with MODPLAY       *
@@ -24,16 +24,11 @@
 //#define DEBUG
 //#define VBL_HW_INT
 #define VBL_SYS_INT
+#define MODULE "assets/red.mod"
 
 #ifdef DEBUG            // Makefile :  if DEBUG : aos68k. If no debug : aos68km (lighter compiled executable)
 #include <stdio.h>
 ULONG counter = 0;
-#endif
-
-// Protracker module replay
-#ifdef MODPLAY
-int mod_play();
-int mod_stop();
 #endif
 
 // Vertical blank (hardware) interrupt
@@ -161,6 +156,33 @@ void restore() {
     printf("%d VBL interrupts occured.\n", counter);
     #endif
 }
+
+#ifdef MODPLAY
+#include <proto/exec.h>
+#include "include/ptreplay.h"
+
+struct Library *PTReplayBase;
+struct Module *Mod = NULL;
+BYTE SigBit;
+
+int mod_play() {
+	if((PTReplayBase = OpenLibrary("ptreplay.library",0L)) && (SigBit=AllocSignal(-1)!=-1)) {
+		if(Mod = PTLoadModule(MODULE)) {
+			PTInstallBits(Mod, SigBit, -1, -1, -1);
+			PTPlay(Mod);
+			return 0;
+		}
+	return 1;
+	}
+}
+
+void mod_stop() {
+	PTStop(Mod);
+	FreeSignal(SigBit);
+	PTUnloadModule(Mod);
+	CloseLibrary(PTReplayBase);
+}
+#endif
 
 #ifdef VBL_HW_INT
 __interrupt void interruptHandler() {
