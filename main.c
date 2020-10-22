@@ -10,26 +10,17 @@
  * MODPLAY for protracker modules replay    *
  * via ptreplay.library                     *
  *                                          *
- * DEBUG for various debug outputs (mostly  *
- * used during this template development)   *
- *                                          *
  * VBL_HW_INT for hardware VBL interrupts   *
  * Warning that will not work with MODPLAY  *
  * 
  * VBL_SYS_INT for system friendly VBL      *
- * interrupts compatible with MODPLAY       *
+ * interrupts - compatible with MODPLAY     *
  * *****************************************/
  
 #define MODPLAY
-//#define DEBUG
 //#define VBL_HW_INT
 #define VBL_SYS_INT
 #define MODULE "assets/red.mod"
-
-#ifdef DEBUG            // Makefile :  if DEBUG : aos68k. If no debug : aos68km (lighter compiled executable)
-#include <stdio.h>
-ULONG counter = 0;
-#endif
 
 // Vertical blank (hardware) interrupt
 #ifdef VBL_HW_INT
@@ -79,11 +70,6 @@ int startup() {
     clist[1] = (UWORD)(bpl1addr>>16);       // BPL1PTH
     clist[3] = (UWORD)bpl1addr;             // BPL1PTL
 
-    #ifdef DEBUG
-    printf("Bitplan address : %8x\n", bpl1addr);
-    printf("BPL1PTH - BPL1PTL : %04x %04x\n", clist[1], clist[3]);
-    #endif
-
     // Saving initial copperlist
     GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 0);
     oldcop = GfxBase->copinit;
@@ -104,18 +90,11 @@ int startup() {
         vbint->is_Node.ln_Name = "VertB-Interrupt";
         vbint->is_Code = interruptHandler;
         AddIntServer(INTB_VERTB, vbint); /* Launching interrupt server. */
-        #ifdef DEBUG
-        printf("System friendly VBlank interrupts.\n");
-        #endif
     }
     else {
         CloseLibrary((struct Library *)GfxBase);
         return 1;
     }
-    #endif
-
-    #ifdef DEBUG
-    printf("copperlist address : %8x\n", (ULONG)clist);
     #endif
 
     WaitTOF();                                                                          // Waiting for both copperlists to finish
@@ -153,9 +132,6 @@ void restore() {
     RemIntServer(INTB_VERTB, vbint);
     FreeMem(vbint, sizeof(struct Interrupt));
     #endif
-    #ifdef DEBUG
-    printf("%d VBL interrupts occured.\n", counter);
-    #endif
 }
 
 #ifdef MODPLAY
@@ -191,18 +167,12 @@ void mod_stop() {
 
 #ifdef VBL_HW_INT
 __interrupt void interruptHandler() {
-    #ifdef DEBUG
-    counter++;
-    #endif
     custom.intreq=INTF_VERTB; custom.intreq=INTF_VERTB; //reset vbl req. twice for a4000 bug.
 }
 #endif
 
 #ifdef VBL_SYS_INT
 __amigainterrupt void interruptHandler() {
-    #ifdef DEBUG
-    counter++;
-    #endif
 }
 #endif
 
