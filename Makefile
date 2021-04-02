@@ -1,5 +1,5 @@
 CC = vc
-CFLAGS = -c99 +aos68km -I$(NDK_INC)
+CFLAGS = -c99 +aos68km
 LDFLAGS = -lamiga -lauto
 
 all:
