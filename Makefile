@@ -1,5 +1,5 @@
 CC = vc
-CFLAGS = -c99 +kick13m
+CFLAGS = -c99 +aos68km
 LDFLAGS = -lamiga -lauto
 
 all:
