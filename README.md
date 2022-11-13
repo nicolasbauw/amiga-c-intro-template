@@ -4,7 +4,7 @@ To use with the VBCC compiler (see my [installation script](https://github.com/n
 
 For kickstart 1.3, replace +aos68km with +kick13m in the makefile.
 
-Compiled with module replay and VBL features, the executable weighs 1440 bytes.
+Compiled with module replay and VBL features, the executable weighs 1256 bytes.
 
 ## Notes
 ¹ Use [PTReplay v7 library](https://www.pouet.net/prod.php?which=82170) by Mattias Karlsson Andreas Pålsson and StingRay.
