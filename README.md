@@ -2,6 +2,8 @@
 
 To use with the VBCC compiler (see my [installation script](https://github.com/nicolasbauw/Amiga-cc)). Provides startup and system restore code, copperlist setup, and also module replay¹ and VBL interrupts as features you can activate or not.
 
+For kickstart 1.3, replace +aos68km with +kick13m in the makefile.
+
 Compiled with module replay and VBL features, the executable weighs 1440 bytes.
 
 ## Notes
