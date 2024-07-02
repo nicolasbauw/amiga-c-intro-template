@@ -18,8 +18,7 @@
  * *****************************************/
  
 #define MODPLAY
-//#define VBL_HW_INT
-#define VBL_SYS_INT
+#define VBL_HW_INT
 #define MODULE "assets/red.mod"
 
 // Vertical blank (hardware) interrupt
@@ -37,13 +36,6 @@ void __interrupt interruptHandler();
 
 UWORD SystemInts;           // backup of initial interrupts
 APTR SystemIrq;             // backup of interrupts register
-#endif
-
-// Vertical blank (system) interrupt
-#ifdef VBL_SYS_INT
-#include <hardware/intbits.h>
-struct Interrupt *vbint;
-void __amigainterrupt interruptHandler();
 #endif
 
 // Variables declarations
@@ -79,22 +71,6 @@ int startup() {
     #ifdef VBL_HW_INT
     SystemInts = custom.intenar|0x8000;     // Saving initial interrupts
     SystemIrq = GetInterruptHandler();      // Store interrupt register
-    #endif
-
-    #ifdef VBL_SYS_INT
-    if (vbint = AllocMem(sizeof(struct Interrupt),     /* Allocate memory for  */
-                         MEMF_PUBLIC|MEMF_CLEAR))      /* interrupt node. */
-    {
-        vbint->is_Node.ln_Type = NT_INTERRUPT;         /* Initialize the node. */
-        vbint->is_Node.ln_Pri = -60;
-        vbint->is_Node.ln_Name = "VertB-Interrupt";
-        vbint->is_Code = interruptHandler;
-        AddIntServer(INTB_VERTB, vbint); /* Launching interrupt server. */
-    }
-    else {
-        CloseLibrary((struct Library *)GfxBase);
-        return 1;
-    }
     #endif
 
     WaitTOF();                                                                          // Waiting for both copperlists to finish
@@ -135,30 +111,6 @@ void restore() {
 }
 
 #ifdef MODPLAY
-#include <proto/exec.h>
-#include "include/ptreplay.h"
-
-struct Library *PTReplayBase;
-struct Module *Mod = NULL;
-BYTE SigBit;
-
-int mod_play() {
-    if((PTReplayBase = OpenLibrary("ptreplay.library",0L)) && (SigBit=AllocSignal(-1)!=-1)) {
-        if(Mod = PTLoadModule(MODULE)) {
-            PTInstallBits(Mod, SigBit, -1, -1, -1);
-            PTPlay(Mod);
-            return 0;
-        }
-    return 1;
-    }
-}
-
-void mod_stop() {
-    PTStop(Mod);
-    FreeSignal(SigBit);
-    PTUnloadModule(Mod);
-    CloseLibrary(PTReplayBase);
-}
 #endif
 
 /****************************************************************
@@ -168,11 +120,6 @@ void mod_stop() {
 #ifdef VBL_HW_INT
 __interrupt void interruptHandler() {
     custom.intreq=INTF_VERTB; custom.intreq=INTF_VERTB; //reset vbl req. twice for a4000 bug.
-}
-#endif
-
-#ifdef VBL_SYS_INT
-__amigainterrupt void interruptHandler() {
 }
 #endif
 
@@ -192,11 +139,11 @@ UWORD __chip clist[] = {
 int main() {
     if (startup()) return 10;
     #ifdef MODPLAY
-    mod_play();
+    //mod_play();
     #endif
     waitLMB();
     #ifdef MODPLAY
-    mod_stop();
+    //mod_stop();
     #endif
     restore();
     return 0;
