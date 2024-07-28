@@ -120,7 +120,7 @@ mt_end	move.l	a0,-(sp)
 
 ;*-----------------------------------------------------------------------------
 
-
+.global     mt_music
 mt_music	movem.l	d0-d7/a0-a6,-(sp)
 	moveq	#$0F,d7
 	move.b	#$F0,d5
@@ -1041,3 +1041,6 @@ mt_lowmask	dc.b	0
 mt_patdeltime	dc.b	0
 mt_patdeltime2	dc.b	0,0
 mt_base	ds.l	0
+
+bss_c
+mt_data incbin  "assets/RED.MOD"

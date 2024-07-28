@@ -44,6 +44,7 @@ UBYTE *bitplan1;            // pointer to bitplan data
 UWORD SystemDMA;            // backup of initial DMA
 UWORD __chip clist[];       // Copperlist
 
+extern void mt_music();
 extern struct Custom custom;
 extern struct GfxBase *GfxBase;
 struct copinit *oldcop;     // Initial copperlist
@@ -119,6 +120,7 @@ void restore() {
 
 #ifdef VBL_HW_INT
 __interrupt void interruptHandler() {
+    mt_music()
     custom.intreq=INTF_VERTB; custom.intreq=INTF_VERTB; //reset vbl req. twice for a4000 bug.
 }
 #endif
