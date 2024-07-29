@@ -120,7 +120,7 @@ void restore() {
 
 #ifdef VBL_HW_INT
 __interrupt void interruptHandler() {
-    mt_music()
+    mt_music();
     custom.intreq=INTF_VERTB; custom.intreq=INTF_VERTB; //reset vbl req. twice for a4000 bug.
 }
 #endif
