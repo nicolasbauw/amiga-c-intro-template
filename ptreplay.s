@@ -1039,6 +1039,3 @@ mt_lowmask	dc.b	0
 mt_patdeltime	dc.b	0
 mt_patdeltime2	dc.b	0,0
 mt_base	ds.l	0
-
-bss_c
-mt_data incbin  "assets/RED.MOD"
