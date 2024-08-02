@@ -32,7 +32,7 @@ NO_MINMAX	SET	1	;set this to 1
 			;be ignored
 	XDEF	_mt_init
 	XDEF	_mt_music
-	XDEF	mt_end
+	XDEF	_mt_end
 
 n_note	EQU	0  ;w
 n_cmd	EQU	2  ;w
@@ -105,7 +105,7 @@ mt_stufsmp
 	clr.b	mt_songpos-mt_base(a3)
 	clr.w	mt_pattpos-mt_base(a3)
 	movem.l	(sp)+,d0-d2/a0-a3
-mt_end	move.l	a0,-(sp)
+_mt_end	move.l	a0,-(sp)
 	lea	$DFF000,a0
 	clr.w	$A8(a0)
 	clr.w	$B8(a0)

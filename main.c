@@ -46,6 +46,7 @@ UWORD __chip clist[];       // Copperlist
 
 extern void mt_init();
 extern void mt_music();
+extern void mt_end();
 extern struct Custom custom;
 extern struct GfxBase *GfxBase;
 struct copinit *oldcop;     // Initial copperlist
@@ -148,7 +149,7 @@ int main() {
     #endif
     waitLMB();
     #ifdef MODPLAY
-    //mod_stop();
+    mt_end();
     #endif
     restore();
     return 0;
