@@ -1,4 +1,4 @@
- public mt_music
+ public _mt_music
 
 
 ;*--------------T-----------T-------------------------------T------------T-----
@@ -34,7 +34,7 @@ NO_MINMAX	SET	1	;set this to 1
 			;and min/max tempo will
 			;be ignored
 	XDEF	mt_init
-	XDEF	mt_music
+	XDEF	_mt_music
 	XDEF	mt_end
 
 n_note	EQU	0  ;w
@@ -121,7 +121,7 @@ mt_end	move.l	a0,-(sp)
 ;*-----------------------------------------------------------------------------
 
 
-mt_music	movem.l	d0-d7/a0-a6,-(sp)
+_mt_music	movem.l	d0-d7/a0-a6,-(sp)
 	moveq	#$0F,d7
 	move.b	#$F0,d5
 	lea	mt_base(pc),a4
