@@ -1,5 +1,5 @@
  public _mt_music
-
+ public _mt_init
 
 ;*--------------T-----------T-------------------------------T------------T-----
 ;* Protracker V3.0a ReplayCode (68000)
@@ -33,7 +33,7 @@ NO_TEMPO	SET	0	;set this to 1
 NO_MINMAX	SET	1	;set this to 1
 			;and min/max tempo will
 			;be ignored
-	XDEF	mt_init
+	XDEF	_mt_init
 	XDEF	_mt_music
 	XDEF	mt_end
 
@@ -68,8 +68,9 @@ n_trigger	=	42	; b
 ;*-----------------------------------------------------------------------------
 
 
-mt_init	movem.l	d0-d2/a0-a3,-(sp)
+_mt_init	movem.l	d0-d2/a0-a3,-(sp)
 	lea	mt_base(pc),a3
+	lea		mt_data,a0
 	move.l	a0,mt_songdata-mt_base(a3)
 	lea	952(a0),a1
 	moveq	#128-1,d0
