@@ -44,6 +44,7 @@ UBYTE *bitplan1;            // pointer to bitplan data
 UWORD SystemDMA;            // backup of initial DMA
 UWORD __chip clist[];       // Copperlist
 
+extern void mt_init();
 extern void mt_music();
 extern struct Custom custom;
 extern struct GfxBase *GfxBase;
@@ -92,7 +93,9 @@ int startup() {
     SetInterruptHandler((APTR)interruptHandler);                                        // Setting new interrupt handler
     custom.intena = INTF_SETCLR | INTF_INTEN | INTF_VERTB;
     #endif
-    custom.copjmp1 = 0x0000;                                                            // copper start
+    custom.copjmp1 = 0x0000;   
+    
+    mt_init();                                                         // copper start
     return 0;
 }
 
@@ -141,7 +144,7 @@ UWORD __chip clist[] = {
 int main() {
     if (startup()) return 10;
     #ifdef MODPLAY
-    //mod_play();
+    mt_music();
     #endif
     waitLMB();
     #ifdef MODPLAY
