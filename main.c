@@ -4,25 +4,7 @@
 #include <hardware/custom.h>
 #include <hardware/dmabits.h>
 
-/********************************************
- * Here you can activate various features:  *
- *                                          *
- * MODPLAY for protracker modules replay    *
- * via ptreplay.library                     *
- *                                          *
- * VBL_HW_INT for hardware VBL interrupts   *
- * Warning that will not work with MODPLAY  *
- * 
- * VBL_SYS_INT for system friendly VBL      *
- * interrupts - compatible with MODPLAY     *
- * *****************************************/
- 
-#define MODPLAY
-#define VBL_HW_INT
-#define MODULE "assets/red.mod"
-
 // Vertical blank (hardware) interrupt
-#ifdef VBL_HW_INT
 #include <hardware/intbits.h>
 void SetInterruptHandler(APTR interrupt) {
 	*(volatile APTR*) 0x6c = interrupt;
@@ -32,13 +14,11 @@ APTR GetInterruptHandler() {
 	return *((volatile APTR*) 0x6c);
 }
 
+// Declarations
 void __interrupt interruptHandler();
 
 UWORD SystemInts;           // backup of initial interrupts
 APTR SystemIrq;             // backup of interrupts register
-#endif
-
-// Variables declarations
 volatile UBYTE *ciaa = (volatile UBYTE *) 0xbfe001;
 UBYTE *bitplan1;            // pointer to bitplan data
 UWORD SystemDMA;            // backup of initial DMA
@@ -51,7 +31,7 @@ extern struct Custom custom;
 extern struct GfxBase *GfxBase;
 struct copinit *oldcop;     // Initial copperlist
 
-// Functions declarations
+// Utility functions
 void waitLMB() {
     while ((*ciaa & 64) != 0);
 }
@@ -71,10 +51,8 @@ int startup() {
 
     SystemDMA = custom.dmaconr|0x8000;      // Saving initial DMA with the SET/CLR flag set
 
-    #ifdef VBL_HW_INT
     SystemInts = custom.intenar|0x8000;     // Saving initial interrupts
     SystemIrq = GetInterruptHandler();      // Store interrupt register
-    #endif
 
     WaitTOF();                                                                          // Waiting for both copperlists to finish
     WaitTOF();
@@ -90,10 +68,10 @@ int startup() {
     custom.bpl1mod = 0x0000;
     custom.cop1lc = (ULONG)clist;                                                       // copperlist address
     custom.dmacon = DMAF_SETCLR | DMAF_MASTER | DMAF_COPPER | DMAF_RASTER;              // playfield and copper DMA enabled
-    #ifdef VBL_HW_INT
+    
     SetInterruptHandler((APTR)interruptHandler);                                        // Setting new interrupt handler
     custom.intena = INTF_SETCLR | INTF_INTEN | INTF_VERTB;
-    #endif
+    
     custom.copjmp1 = 0x0000;   
     
     mt_init();                                                         // copper start
@@ -105,29 +83,18 @@ void restore() {
     custom.dmacon = SystemDMA;                  // Restores initial DMA
     custom.cop1lc = (ULONG)oldcop;              // Restores initial copperlist
     CloseLibrary((struct Library *)GfxBase);
-    #ifdef VBL_HW_INT
     SetInterruptHandler(SystemIrq);             // Restores interrupts
     custom.intena = SystemInts;
-    #endif
-    #ifdef VBL_SYS_INT
-    RemIntServer(INTB_VERTB, vbint);
-    FreeMem(vbint, sizeof(struct Interrupt));
-    #endif
 }
-
-#ifdef MODPLAY
-#endif
 
 /****************************************************************
 * Here you can place code to run during vertical blank interval *
 ****************************************************************/
 
-#ifdef VBL_HW_INT
 __interrupt void interruptHandler() {
     mt_music();
     custom.intreq=INTF_VERTB; custom.intreq=INTF_VERTB; //reset vbl req. twice for a4000 bug.
 }
-#endif
 
 /*************************
  * Here starts your code *
@@ -144,13 +111,12 @@ UWORD __chip clist[] = {
 
 int main() {
     if (startup()) return 10;
-    #ifdef MODPLAY
+
     mt_music();
-    #endif
     waitLMB();
-    #ifdef MODPLAY
+
     mt_end();
-    #endif
     restore();
+
     return 0;
 }
