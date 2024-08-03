@@ -1,4 +1,4 @@
-# C template for Amiga screen setup + module replay (hardware)
+# Amiga C template for hardware screen setup and module replay
 
 To use with the VBCC compiler (see my [installation script](https://github.com/nicolasbauw/Amiga-cc)). Provides startup and system restore code, copperlist setup, and also module replay and VBL interrupts.
 
