@@ -3,9 +3,9 @@
 #include <graphics/gfxbase.h>
 #include <hardware/custom.h>
 #include <hardware/dmabits.h>
+#include <hardware/intbits.h>
 
 // Vertical blank (hardware) interrupt
-#include <hardware/intbits.h>
 void SetInterruptHandler(APTR interrupt) {
 	*(volatile APTR*) 0x6c = interrupt;
 }
@@ -49,10 +49,10 @@ int startup() {
     GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 0);
     oldcop = GfxBase->copinit;
 
-    SystemDMA = custom.dmaconr|0x8000;      // Saving initial DMA with the SET/CLR flag set
+    SystemDMA = custom.dmaconr|DMAF_SETCLR;      // Saving initial DMA with the SET/CLR flag set
 
-    SystemInts = custom.intenar|0x8000;     // Saving initial interrupts
-    SystemIrq = GetInterruptHandler();      // Store interrupt register
+    SystemInts = custom.intenar|INTF_SETCLR;     // Saving initial interrupts with the SET/CLR flag set
+    SystemIrq = GetInterruptHandler();           // Saving initial interrupt vector
 
     WaitTOF();                                                                          // Waiting for both copperlists to finish
     WaitTOF();
