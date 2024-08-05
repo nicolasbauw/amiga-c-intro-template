@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "Amiga",
+            "includePath": [
+                "${VBCC}/NDK_3.2/Include_h/"
+            ],
+            "defines": [],
+            "compilerPath": "${VBCC}/bin/vc",
+            "cStandard": "c99"
+        }
+    ],
+    "version": 4
+}
