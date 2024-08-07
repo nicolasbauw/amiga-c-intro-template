@@ -112,9 +112,7 @@ UWORD __chip clist[] = {
 int main() {
     if (startup()) return 10;
 
-    mt_music();
     waitLMB();
-
     mt_end();
     restore();
 
