@@ -57,8 +57,8 @@ int startup() {
     WaitTOF();                                                                          // Waiting for both copperlists to finish
     WaitTOF();
 
-    custom.dmacon = 0x7FFF;                                                             // Clear all DMA channels
     custom.intreq = 0x7FFF;                                                             // Clear all interrupts
+    custom.dmacon = 0x7FFF;                                                             // Clear all DMA channels
     custom.bplcon0 = 0x1000;                                                            // 1 bitplan in low resolution
     custom.bplcon1 = 0x0000;
     custom.ddfstrt = 0X0038;
