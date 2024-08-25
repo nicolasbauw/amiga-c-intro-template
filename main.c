@@ -40,10 +40,8 @@ int startup() {
     // Allocating memory (chipram) for bitplans
     if ((bitplan1 = AllocMem(0x2800, MEMF_CHIP|MEMF_CLEAR)) == NULL) return 1;
     // Updating copperlist with bitplan address
-    ULONG bpl1addr;
-    bpl1addr = (ULONG)bitplan1;
-    clist[1] = (UWORD)(bpl1addr>>16);       // BPL1PTH
-    clist[3] = (UWORD)bpl1addr;             // BPL1PTL
+    clist[1] = (UWORD)((ULONG)bitplan1>>16);       // BPL1PTH
+    clist[3] = (UWORD)(ULONG)bitplan1;             // BPL1PTL
 
     // Saving initial copperlist
     GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 0);
